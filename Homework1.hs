@@ -14,7 +14,7 @@ import Data.Foldable as F  ( or )
 import Data.List           ( elemIndex, unfoldr )
 import Data.Maybe          ( fromJust )
 
-import System.Random       ( getStdGen, randomRs )
+import System.Random       ( StdGen, getStdGen, randomRs )
 
 -- Simply convert to String and read each digit to get the list of digits
 toDigits :: Integer -> [Integer]
@@ -72,6 +72,24 @@ untilM p f x = (x >>= p) >>= (\b -> if b
                                        then x
                                        else untilM p f (x >>= f))
 
+-- On reviewing my code monochrom suggested delegating randomization to the
+-- caller so that we can write a pure function. Here's the improved version:
+blindHanoi' :: Integer -> Peg -> Peg -> Peg -> StdGen -> [Move]
+blindHanoi' n x y z g = reverse . snd $ until ((winningState ==) . fst)
+                              play
+                              (initialState, [])
+    where initialState  = replicate (fromIntegral n) x
+          winningState  = replicate (fromIntegral n) z
+          randomMoves   = let packPairs (a:b:bs) = (a,b):packPairs bs
+                              in packPairs . map ([x,y,z] !!) . randomRs (0,2) $ g
+          legal s (p,q) = let d = elemIndex p s
+                              in p /= q && (F.or $ notElem q . flip take s <$> d)
+          play   (s,ms) = let m = head . filter (legal s) . drop (length ms) $ randomMoves
+                              d = fromJust . flip elemIndex s . fst $ m  -- m is legal => d exists => fromJust is OK
+                              (smaller, _:bigger) = splitAt d s          -- I think I'm supposed to use lenses here?
+                              in (smaller ++ [snd m] ++ bigger, m:ms)
+
+-- And here's the original for reference:
 blindHanoi :: Integer -> Peg -> Peg -> Peg -> IO [Move]
 blindHanoi n x y z = join $ sequence . reverse . snd <$> untilM (fmap (winningState ==) . sequence . fst)
                                                                 play
