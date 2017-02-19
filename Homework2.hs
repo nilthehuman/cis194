@@ -98,8 +98,8 @@ smallTestMsgs = [ "I 6 Completed armadillo processing"
 
 smallTestExpected :: [String]
 smallTestExpected = [ "Way too many pickles"
-               , "Bad pickle-flange interaction detected"
-               , "Flange failed!" ]
+                    , "Bad pickle-flange interaction detected"
+                    , "Flange failed!" ]
 
 runSmallTest :: Bool
 runSmallTest = smallTestExpected == (whatWentWrong . map parseMessage $ smallTestMsgs)
