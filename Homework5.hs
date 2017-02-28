@@ -13,8 +13,7 @@ import Provided.ExprT
 import Provided.Parser
 import qualified Provided.StackVM as S
 
-import Control.Applicative ( liftA2 )
-import Control.Arrow       ( (&&&) )
+import Control.Arrow.Convey ( recombineA2 )
 import Data.Composition    ( (.:) )
 import qualified Data.Map as M
 
@@ -106,8 +105,8 @@ instance HasVars VarExprT where
 
 instance Expr (M.Map String Integer -> Maybe Integer) where
     lit     = const . Just
-    add f g = (uncurry $ liftA2 (+)) . (f &&& g)
-    mul f g = (uncurry $ liftA2 (*)) . (f &&& g)
+    add     = recombineA2 (+)
+    mul     = recombineA2 (*)
 
 instance HasVars (M.Map String Integer -> Maybe Integer) where
     var = M.lookup
