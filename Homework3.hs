@@ -9,6 +9,7 @@
 module Golf where
 
 import Data.List ( elemIndices, transpose, unfoldr )
+import Data.Maybe ( fromJust, isJust )
 
 -- unfoldr is a standard library function that generates a list from an initial
 -- seed value by repeatedly applying the same function until it signals
@@ -33,15 +34,12 @@ localMaxima l = map    (\ (_, y, _) -> y) .            -- return middle element 
 -- Combinators that capture iteration are such an elegant feature
 -- of functional languages!
 localMaxima' :: [Integer] -> [Integer]
-localMaxima' l = foldr b [] $ unfoldr f l
+localMaxima' = map fromJust . filter isJust . unfoldr f
     where -- 'f' filters out the compliant values
           f (x:y:z:zs)
             | max x z < y = Just (Just y , y:z:zs)
             | True        = Just (Nothing, y:z:zs)  -- otherwise == True by definition
           f _             = Nothing                 -- unfoldr terminates here
-          -- 'b' stands for an upside down 'p' as in "pure": 'b' unwraps a value from its context
-          b Nothing  r    = r
-          b (Just y) r    = y:r
 
 -- The exercise fits Haskell so well that this solution is basically
 -- self-explanatory. We stack the *'s to the /right/ though because
