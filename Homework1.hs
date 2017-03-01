@@ -67,10 +67,6 @@ hanoi n x y z
     | otherwise = (hanoi (n-1) x z y) ++ [(x,z)] ++ (hanoi (n-1) y x z)
 
 -- For fun: let's make a function that tries random Moves until it gets there
-untilM :: Monad m => (a -> m Bool) -> (a -> m a) -> m a -> m a
-untilM p f x = (x >>= p) >>= (\b -> if b
-                                       then x
-                                       else untilM p f (x >>= f))
 
 -- On reviewing my code monochrom suggested delegating randomization to the
 -- caller so that we can write a pure function. Here's the improved version:
@@ -107,6 +103,11 @@ blindHanoi n x y z = join $ sequence . reverse . snd <$> untilM (fmap (winningSt
                               splitS = (liftA2 splitAt) d (pure s)          -- I think I'm supposed to use lenses here?
                           (smaller, _:bigger) <- splitS
                           pure (map pure smaller ++ [snd <$> m] ++ map pure bigger, m:ms)
+
+untilM :: Monad m => (a -> m Bool) -> (a -> m a) -> m a -> m a
+untilM p f x = (x >>= p) >>= (\b -> if b
+                                       then x
+                                       else untilM p f (x >>= f))
 
 -- An easier Hanoi game variant with 4 pegs. The solution is far less obvious though.
 -- hanoi4 1 w x y z == [(w,z)]
