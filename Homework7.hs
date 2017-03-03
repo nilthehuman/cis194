@@ -11,12 +11,12 @@ module JoinList where
 import Provided.Sized
 import Provided.Buffer
 
-import Control.Arrow        ( (&&&) )
-import Control.Arrow.Convey ( recombine2 )
+import Control.Applicative ( liftA2 )
+import Control.Arrow       ( (&&&) )
 
-import Data.Char            ( toLower )
-import Data.Foldable        ( foldMap )
-import Data.Maybe           ( fromMaybe )
+import Data.Char           ( toLower )
+import Data.Foldable       ( foldMap )
+import Data.Maybe          ( fromMaybe )
 import Data.Monoid
 
 -- Monoidally Annotated Join-Lists
@@ -124,14 +124,14 @@ scoreString :: String -> Score
 scoreString = foldMap score
 
 scoreLine :: String -> JoinList Score String
-scoreLine = recombine2 Single scoreString id
+scoreLine = liftA2 Single scoreString id
 
 instance Buffer (JoinList (Score, Size) String) where
     toString Empty          = ""
     toString (Single _ s)   = s
     toString (Append _ l r) = toString l ++ toString r
 
-    fromString = recombine2 Single (scoreString &&& Size . length) id
+    fromString = liftA2 Single (scoreString &&& Size . length) id
 
     line = indexJ
 

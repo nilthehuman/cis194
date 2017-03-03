@@ -13,8 +13,7 @@ import Provided.ExprT
 import Provided.Parser
 import qualified Provided.StackVM as S
 
-import Control.Arrow.Convey ( recombineA2 )
-import Data.Composition    ( (.:) )
+import Data.Composition ( (.:) )
 import qualified Data.Map as M
 
 -- Expressions
@@ -105,8 +104,8 @@ instance HasVars VarExprT where
 
 instance Expr (M.Map String Integer -> Maybe Integer) where
     lit     = const . Just
-    add     = recombineA2 (+)
-    mul     = recombineA2 (*)
+    add     = liftA2 . liftA2 $ (+)
+    mul     = liftA2 . liftA2 $ (*)
 
 instance HasVars (M.Map String Integer -> Maybe Integer) where
     var = M.lookup

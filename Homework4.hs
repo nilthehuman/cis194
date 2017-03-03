@@ -6,7 +6,7 @@
 
 -- CIS 194: Homework 4
 
-import Control.Arrow.Convey ( recombine2 )
+import Control.Applicative ( liftA2 )
 
 -- Wholemeal programming
 
@@ -31,7 +31,7 @@ fun2'' = sum . filter even . takeWhile (1 /=) . iterate f
 
 -- This should be True
 testFun2Equivalence :: Bool
-testFun2Equivalence = and . map (recombine2 (==) fun2' fun2'') $ [1..10000]
+testFun2Equivalence = and . map (liftA2 (==) fun2' fun2'') $ [1..10000]
 
 
 -- Folding with trees
