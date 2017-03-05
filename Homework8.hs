@@ -14,7 +14,6 @@ import Data.Function       ( on )
 import Data.List           ( sort )
 import Data.Monoid
 import Data.Tree
-import System.IO           ( withFile, hGetContents, Handle, IOMode(..) )
 
 -- Preliminaries
 
@@ -71,9 +70,7 @@ companyFile :: FilePath
 companyFile = "./Provided/company.txt"
 
 readCompany :: FilePath -> IO (Tree Employee)
-readCompany f = withFile f ReadMode go
-    where go :: Handle -> IO (Tree Employee)
-          go = fmap read <$> hGetContents
+readCompany = fmap read <$> readFile
 
 prettyPrint :: GuestList -> [String]
 prettyPrint gs = let (es, fun) = unGL gs
