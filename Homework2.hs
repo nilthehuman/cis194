@@ -74,10 +74,8 @@ inOrder = unfoldr tearDown
 -- Log file postmortem
 
 relevant :: LogMessage -> Bool
-relevant (LogMessage Info      _ _) = False
-relevant (LogMessage Warning   _ _) = False
 relevant (LogMessage (Error s) _ _) = 50 <= s
-relevant (Unknown _)                = False
+relevant _                          = False
 
 whatWentWrong :: [LogMessage] -> [String]
 whatWentWrong = map message . inOrder . build . filter relevant
