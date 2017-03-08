@@ -34,11 +34,8 @@ toDigitsRev = unfoldr (\x -> if 0 < x
 every :: Integer -> (a -> a) -> [a] -> [a]
 every n f xs
     | n < 0     = reverse . every (-n) f . reverse $ xs
-    | otherwise = go n 1 f xs
-    where go _ _ _ [] = []
-          go n k f (x:xs)
-           | n == k    = (f x) : go n    1  f xs
-           | otherwise =    x  : go n (k+1) f xs
+    | otherwise = zipWith ($) fs xs
+    where fs = tail . cycle $ f : replicate (pred . fromInteger $ n) id
 
 doubleEveryOther :: [Integer] -> [Integer]
 doubleEveryOther = every (-2) (*2)
