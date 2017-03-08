@@ -15,32 +15,17 @@ import Data.Function       ( on )
 import Data.List           ( unfoldr )
 import Text.Read           ( readMaybe )
 
--- This definition feels really clumsy, especially the "error" case.
--- There must be a more elegant way to do this
+readSeverity :: String -> Maybe Int
+readSeverity s = (readMaybe s :: Maybe Int) >>= \svty -> if 0 <= svty && svty <=100
+                                                            then Just svty
+                                                            else Nothing
+
 parseMessage :: String -> LogMessage
-parseMessage l@('I':msg)
-    | null msg  = Unknown l
-    | otherwise = let (t:rest) = words msg
-                      time = readMaybe t :: Maybe Int
-                      in case time of Nothing -> Unknown l
-                                      Just t  -> LogMessage Info t (unwords rest)
-parseMessage l@('W':msg)
-    | null msg  = Unknown l
-    | otherwise = let (t:rest) = words msg
-                      time = readMaybe t :: Maybe Int
-                      in case time of Nothing -> Unknown l
-                                      Just t  -> LogMessage Warning t (unwords rest)
-parseMessage l@('E':msg)
-    | (length . words) msg < 2 = Unknown l
-    | otherwise                = let (s:t:rest) = words msg
-                                     svty = readMaybe s :: Maybe Int
-                                     time = readMaybe t :: Maybe Int
-                                     in case liftA2 (,) svty time
-                                             of Nothing    -> Unknown l
-                                                Just (s,t) -> if not $ liftA2 (&&) (0<=) (<=100) s
-                                                              then Unknown l
-                                                              else LogMessage (Error s) t (unwords rest)
-parseMessage msg = Unknown msg
+parseMessage l = case words l of
+                 ("I":  t:rest) -> maybe (Unknown l) (\      time  -> LogMessage Info         time $ unwords rest) (readMaybe t :: Maybe Int)
+                 ("W":  t:rest) -> maybe (Unknown l) (\      time  -> LogMessage Warning      time $ unwords rest) (readMaybe t :: Maybe Int)
+                 ("E":s:t:rest) -> maybe (Unknown l) (\(svty,time) -> LogMessage (Error svty) time $ unwords rest) ((uncurry $ liftA2 (,)) (readSeverity s, readMaybe t :: Maybe Int))
+                 _              -> Unknown l
 
 -- LogMessage is not defined with record syntax
 timeStamp :: LogMessage -> Maybe TimeStamp
