@@ -1,3 +1,9 @@
+{-# OPTIONS_GHC -Wall #-}
+
+--  !!  WARNING: SPOILERS AHEAD  !!  --
+
+-- CIS 194: Homework 11
+
 module Homework11 where
 
 import Homework10

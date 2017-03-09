@@ -1,3 +1,9 @@
+{-# OPTIONS_GHC -Wall #-}
+
+--  !!  WARNING: SPOILERS AHEAD  !!  --
+
+-- CIS 194: Homework 10
+
 module Homework10 where
 
 import Control.Applicative
