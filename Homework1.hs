@@ -38,13 +38,13 @@ every n f xs
     where fs = tail . cycle $ f : replicate (pred . fromInteger $ n) id
 
 doubleEveryOther :: [Integer] -> [Integer]
-doubleEveryOther = every (-2) (*2)
+doubleEveryOther = every 2 (*2)
 
 sumDigits :: [Integer] -> Integer
 sumDigits = sum . concatMap toDigits
 
 validate :: Integer -> Bool
-validate = (0 ==) . (`mod` 10) . sumDigits . doubleEveryOther . toDigits
+validate = (0 ==) . (`mod` 10) . sumDigits . doubleEveryOther . toDigitsRev
 
 -- The Towers of Hanoi
 
