@@ -8,7 +8,7 @@
 
 module Homework12 where
 
-import Control.Applicative  ( (<$>), (<*>), liftA2 )
+import Control.Applicative  ( (<$>), liftA2 )
 import Control.Monad        ( replicateM )
 import Control.Monad.Random
 import Data.Composition     ( (.:) )
@@ -38,6 +38,7 @@ die = getRandom
 type Army = Int
 
 data Battlefield = Battlefield { attackers :: Army, defenders :: Army }
+     deriving Show
 
 count :: Foldable f => (a -> Bool) -> f a -> Int
 count p = getSum .: foldMap $ \x -> if p x
@@ -45,21 +46,22 @@ count p = getSum .: foldMap $ \x -> if p x
                                        else Sum 0
 
 battle :: Battlefield -> Rand StdGen Battlefield
-battle (Battlefield a d) = Battlefield <$> ((a -) <$> deadAs) <*> ((d -) <$> deadDs)
-    where as      = sortBy (flip compare) <$> replicateM (min 3 a) die
-          ds      = sortBy (flip compare) <$> replicateM (min 2 d) die
-          outcome = zipWith (<=) <$> as <*> ds
-          deadAs  = count id  <$> outcome
-          deadDs  = count not <$> outcome
+battle (Battlefield a d) = do
+    as <- sortBy (flip compare) <$> replicateM (min 3 (a-1)) die
+    ds <- sortBy (flip compare) <$> replicateM (min 2  d   ) die
+    let pairs  = zip as ds
+        deadAs = count (uncurry (>))  pairs
+        deadDs = count (uncurry (<=)) pairs
+        in return $ Battlefield (a - deadAs) (d - deadDs)
 
 -- Reused from a bonus exercise in Homework 1
-untilM :: Monad m => (a -> m Bool) -> (a -> m a) -> m a -> m a
-untilM p f x = (x >>= p) >>= (\b -> if b
-                                       then x
-                                       else untilM p f (x >>= f))
+untilM :: Monad m => (a -> m Bool) -> (a -> m a) -> a -> m a
+untilM p f x = p x >>= \b -> if b
+                                then return x
+                                else f x >>= untilM p f
 
 invade :: Battlefield -> Rand StdGen Battlefield
-invade = untilM done battle . return
+invade = untilM done battle
     where done (Battlefield a d) = return $ a < 2 || d < 1
 
 success :: Battlefield -> Bool
