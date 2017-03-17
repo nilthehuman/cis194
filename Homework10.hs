@@ -64,7 +64,7 @@ inParser :: ((String -> Maybe (a, String))  ->
              (String -> Maybe (b, String))) ->
              Parser a ->
              Parser b
-inParser f = Parser . f . runParser
+inParser = (Parser .) . (. runParser)
 
 instance Functor Parser where
     fmap f = inParser $ fmap fmap fmap (first f)
