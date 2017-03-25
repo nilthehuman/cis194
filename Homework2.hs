@@ -11,7 +11,7 @@ module LogAnalysis where
 import Provided.Log
 
 import Control.Applicative ( liftA2 )
-import Data.Function       ( on )
+import Data.Ord            ( comparing )
 import Data.List           ( unfoldr )
 import Text.Read           ( readMaybe )
 
@@ -41,8 +41,8 @@ insert :: LogMessage -> MessageTree -> MessageTree
 insert (Unknown _) t    = t
 insert x           Leaf = Node Leaf x Leaf
 insert x           (Node l y r)
-    | (compare `on` timeStamp) x y == LT  = Node (insert x l) y r
-    | otherwise                           = Node l            y (insert x r)
+    | (comparing timeStamp) x y == LT  = Node (insert x l) y r
+    | otherwise                        = Node l            y (insert x r)
 
 -- Combinators are awesome!
 build :: [LogMessage] -> MessageTree

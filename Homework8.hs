@@ -10,7 +10,7 @@ import Provided.Employee
 
 import Control.Applicative ( (<$>) )
 import Data.Biapplicative  ( biliftA2 )
-import Data.Function       ( on )
+import Data.Ord            ( comparing )
 import Data.List           ( sort )
 import Data.Monoid
 import Data.Tree
@@ -34,7 +34,7 @@ instance Monoid GuestList where
     mappend x y = uncurry GL $ biliftA2 (++) (+) (unGL x) (unGL y)
 
 instance Ord GuestList where
-    compare = compare `on` snd . unGL
+    compare = comparing $ snd . unGL
 
 moreFun :: GuestList -> GuestList -> GuestList
 moreFun = max
